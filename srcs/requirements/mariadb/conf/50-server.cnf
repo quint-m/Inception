@@ -1,0 +1,29 @@
+[mysqld]
+bind-address = mariadb
+port = 3306
+datadir = /var/lib/mysql
+socket = /var/run/mysqld/mysqld.sock
+pid-file = /var/run/mysqld/mysqld.pid
+init_file = /etc/mysql/init.sql
+user = mysql
+
+# Basic settings
+skip-host-cache
+skip-name-resolve
+
+# InnoDB settings
+innodb_buffer_pool_size = 128M
+innodb_flush_log_at_trx_commit = 1
+innodb_file_per_table = 1
+
+# Logging
+log-error = /var/lib/mysql/error.log
+slow_query_log = 0
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqldump]
+quick
+quote-names
+max_allowed_packet = 16M
