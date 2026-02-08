@@ -19,11 +19,17 @@ services:
       context: ./requirements/mariadb/
       dockerfile: Dockerfile
     container_name: mariadb
+    env_file:
+      - ./.env
     environment:
-      MYSQL_ROOT_PASSWORD: examplepassword
-      MYSQL_DATABASE: exampledb
-      MYSQL_USER: exampleuser
-      MYSQL_PASSWORD: examplepass
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+    secrets:
+      - db_password
+      - db_root_password
+    restart: unless-stopped
     volumes:
       - mariadb_data:/var/lib/mysql:rw
     networks:
@@ -48,3 +54,9 @@ volumes:
 networks:
   inception:
     driver: bridge
+
+secrets:
+  db_password:
+    file: ../secrets/db_password.txt
+  db_root_password:
+    file: ../secrets/db_root_password.txt
