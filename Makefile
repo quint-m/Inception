@@ -4,7 +4,7 @@ DOCKER_COMPOSE = docker compose -f $(COMPOSE_FILE)
 all: build up
 
 up:
-	$(DOCKER_COMPOSE) up -d
+	$(DOCKER_COMPOSE) up
 
 down:
 	$(DOCKER_COMPOSE) down
@@ -14,12 +14,14 @@ build:
 
 re: clean
 	$(DOCKER_COMPOSE) build --no-cache
-	$(DOCKER_COMPOSE) up -d --force-recreate
+	$(DOCKER_COMPOSE) up --force-recreate
 
 logs:
 	$(DOCKER_COMPOSE) logs -f
 
 clean:
 	$(DOCKER_COMPOSE) down -v --remove-orphans
+	sudo rm -rf ./data/mariadb_data/*
+	sudo rm -rf ./data/wordpress_data/*
 
 .PHONY: all up down build re logs clean

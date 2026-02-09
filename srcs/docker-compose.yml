@@ -1,20 +1,24 @@
 services:
   nginx:
+    image: nginx
     build:
       context: ./requirements/nginx/
       dockerfile: Dockerfile
     ports:
-      - "80:80" ## This can't run in prod
+      - "80:80"
       - "443:443"
-    volumes:
-      - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./requirements/web:/var/www/html:rw
     container_name: nginx
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME}
+    volumes:
+      - wordpress_data:/var/www/html:ro
     depends_on:
       - wordpress
     networks:
       - inception
+    restart: unless-stopped
   mariadb:
+    image: mariadb
     build:
       context: ./requirements/mariadb/
       dockerfile: Dockerfile
@@ -35,21 +39,38 @@ services:
     networks:
       - inception
   wordpress:
+    image: wordpress
     build:
       context: ./requirements/wordpress/
       dockerfile: Dockerfile
     container_name: wordpress
     volumes:
-      - ./requirements/web:/var/www/html:rw
-    expose:
-      - "9000"
+      - wordpress_data:/var/www/html:rw
+    env_file:
+      - ./.env
+    secrets:
+      - db_password
+      - wp_admin_password
+      - wp_password
     depends_on:
       - mariadb
     networks:
       - inception
+    restart: unless-stopped
 
 volumes:
   mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/mariadb_data
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR}/wordpress_data
 
 networks:
   inception:
@@ -60,3 +81,7 @@ secrets:
     file: ../secrets/db_password.txt
   db_root_password:
     file: ../secrets/db_root_password.txt
+  wp_password:
+    file: ../secrets/wp_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt

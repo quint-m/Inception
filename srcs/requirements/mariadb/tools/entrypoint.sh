@@ -5,46 +5,46 @@ echo "Starting MariaDB entrypoint script..."
 
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
+MYSQL_USER=${MYSQL_USER:-wpuser}
 
-# Initialize MySQL data directory if it doesn't exist or if our custom database doesn't exist
-if [ ! -d "/var/lib/mysql/mysql/.initialized" ]; then
+if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing MariaDB..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-    # Start MySQL temporarily for setup
-    echo "Starting temporary MySQL instance..."
-    mysqld --user=mysql --datadir=/var/lib/mysql --socket=/tmp/mysql.sock --skip-grant-tables &
+    echo "Starting temporary MariaDB instance..."
+    mysqld --user=mysql --datadir=/var/lib/mysql \
+           --socket=/var/run/mysqld/mysqld.sock \
+           --pid-file=/var/run/mysqld/mysqld.pid \
+           --skip-networking \
+           --skip-grant-tables &
     MYSQL_PID=$!
     
-    # Wait for MySQL to be ready
-    echo "Waiting for MySQL to be ready..."
-    while ! mysqladmin ping --socket=/tmp/mysql.sock --silent; do
+    echo "Waiting for MariaDB to be ready..."
+    while ! mysqladmin ping --socket=/var/run/mysqld/mysqld.sock --silent; do
         sleep 1
     done
-    
+
     echo "Creating database and user..."
     # Create database and user
-    mysql --socket=/tmp/mysql.sock << EOF
+    mysql --socket=/var/run/mysqld/mysqld.sock << EOF
 FLUSH PRIVILEGES;
 ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
-CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;
 CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
 GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';
+GRANT CREATE ON *.* TO '$MYSQL_USER'@'%';
 FLUSH PRIVILEGES;
 EOF
 
-    touch "/var/lib/mysql/mysql/.initialized"
-    
-    chmod 600 "/var/lib/mysql/mysql/.initialized"
-    chown mysql:mysql "/var/lib/mysql/mysql/.initialized"
-
-    mysqladmin --socket=/tmp/mysql.sock -u root -p"$MYSQL_ROOT_PASSWORD" shutdown
+    # Shutdown the temporary instance
+    mysqladmin --socket=/var/run/mysqld/mysqld.sock -u root -p"$MYSQL_ROOT_PASSWORD" shutdown
+    wait $MYSQL_PID
 
     echo "Database initialization complete."
 else
-    echo "MySQL data directory already exists, skipping initialization."
+    echo "MariaDB data directory already exists, skipping initialization."
 fi
 
-echo "Starting MySQL normally..."
-# Start MySQL normally
+echo "Starting MariaDB normally..."
+# Start MariaDB normally
 exec mysqld --user=mysql --datadir=/var/lib/mysql

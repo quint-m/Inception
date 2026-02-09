@@ -16,6 +16,6 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 RUN chmod 600 /etc/nginx/ssl/nginx.key && \
     chmod 644 /etc/nginx/ssl/nginx.crt
 
-EXPOSE 80 443
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 
 CMD ["nginx", "-g", "daemon off;"]
