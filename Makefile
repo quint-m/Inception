@@ -19,6 +19,9 @@ re: clean
 logs:
 	$(DOCKER_COMPOSE) logs -f
 
+status:
+	$(DOCKER_COMPOSE) ps
+
 clean:
 	$(DOCKER_COMPOSE) down -v --remove-orphans
 	sudo rm -rf ./data/mariadb_data/*

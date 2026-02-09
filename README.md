@@ -45,7 +45,9 @@ A.I. was mostly used to help debug various issues regarding:
 
 Each container is built based on `debian:bookworm`, following the project requirement not to use pre-built images.
 
-### Design Choices
+---
+
+## Design Choices
 
 1. **Custom entrypoint scripts**: Each service uses a shell script to handle initialization (database setup, WordPress installation, etc.) before starting the main process.
 2. **Docker secrets**: Sensitive data (passwords) are stored in files and mounted read-only at `/run/secrets/`.
@@ -53,7 +55,7 @@ Each container is built based on `debian:bookworm`, following the project requir
 
 ---
 
-### Virtual Machines vs Docker
+## Virtual Machines vs Docker
 
 Virtual machines and Docker images differ in some critical aspects, such as:
 
@@ -63,18 +65,18 @@ Virtual machines and Docker images differ in some critical aspects, such as:
 
 > VMs allow you to run any operating system on any machine. Docker allows you to run any application on any operating system.
 
-### Secrets vs Environment Variables
+## Secrets vs Environment Variables
 
 It's important to note that both secrets and environment variables can be used to expose dynamic data to the container. The difference between them is essential, however, and implied in the name: secrets are hidden.
 A container’s environment variables can be compromised if a hacker gains access to your Docker daemon. Test this yourself by running a container and inspecting it using `docker inspect ...`. Under the `Config` entry, you will be able to see all environment variables and their values as they are used in the container. You’ll notice the secrets aren’t there.
 
 ---
 
-### Docker Network vs Host Network
+## Docker Network vs Host Network
 
 As required by the subject, this project uses a bridge network instead of the host network. This is mostly motivated by security. By using the bridge network, we ensure that the containers are part of a closed-system network with their own private IPs. To allow entry into the network, we need to explicitly expose ports, and containers are able to communicate via container names. Using the host network would mean we lose all of this added security because we’re sharing the host’s network driver, so other applications (and even users, if they enter our host) have access to the containers.
 
-### Docker Volumes vs Bind Mounts
+## Docker Volumes vs Bind Mounts
 
 Docker volumes differ from bind mounts in that they’re not bound directly to the host’s filesystem. As the name “bind mount” implies, bind mounts are bound directly to the host’s filesystem and mounted onto the container. Docker volumes are managed by Docker and stored under `/var/lib/docker/volumes`. The subject requires us to use named volumes and not bind mounts, but it does ask us to store the data in `/home/login/data`, which is contradictory. To solve this, I’ve used a named volume that uses a bind mount as its storage driver. This seems like the only logical solution.
 
