@@ -79,3 +79,8 @@ To get rid of the volumes you can:
 2. Manually remove them:
     - `docker compose -f srcs/docker-compose.yml down -v`
     - `sudo rm -rf ${DATA_DIR}/mariadb_data/* ${DATA_DIR}/wordpress_data/*`
+
+### 4. Port updates
+
+Especially for changing the nginx port keep in mind that the WP site url and home option also save the port.
+To update this, change the ${DOMAIN} env and update the database settings using `wp option update siteurl "https://domain.42.fr:port"` and `wp option update home "https://domain.42.fr:port"`
