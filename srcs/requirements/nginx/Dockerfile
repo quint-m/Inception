@@ -1,4 +1,6 @@
-FROM debian:bookworm
+FROM debian:12
+
+ARG DOMAIN=${DOMAIN_NAME}
 
 RUN apt-get update && \
     apt-get install -y nginx openssl && \
@@ -10,7 +12,7 @@ RUN mkdir -p /etc/nginx/ssl
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/nginx.key \
     -out /etc/nginx/ssl/nginx.crt \
-    -subj "/C=NL/ST=North Holland/L=Amsterdam/O=42/CN=localhost"
+    -subj "/C=NL/ST=North Holland/L=Amsterdam/O=42/CN=${DOMAIN}"
 
 # Set proper permissions for SSL files
 RUN chmod 600 /etc/nginx/ssl/nginx.key && \
