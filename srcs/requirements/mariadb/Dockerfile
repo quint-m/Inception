@@ -14,3 +14,4 @@ COPY ./tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=1 CMD mysqladmin ping -h localhost || exit 1

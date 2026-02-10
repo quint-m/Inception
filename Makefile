@@ -24,7 +24,7 @@ status:
 
 clean:
 	$(DOCKER_COMPOSE) down -v --remove-orphans
-	sudo rm -rf ./data/mariadb_data/*
-	sudo rm -rf ./data/wordpress_data/*
+	sudo rm -rf /home/qmennen/data/mariadb_data/*
+	sudo rm -rf /home/qmennen/data/wordpress_data/*
 
 .PHONY: all up down build re logs clean
