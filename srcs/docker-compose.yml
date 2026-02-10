@@ -4,8 +4,9 @@ services:
     build:
       context: ./requirements/nginx/
       dockerfile: Dockerfile
+      args:
+        DOMAIN_NAME: ${DOMAIN_NAME}
     ports:
-      - "80:80"
       - "443:443"
     container_name: nginx
     environment:
