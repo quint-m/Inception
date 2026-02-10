@@ -14,7 +14,7 @@ Contributing to this project has been made as easy as possible.
 - `srcs/docker-compose.yml`: Compose definition
 - `srcs/requirements/**`: Dockerfiles, configs, and entrypoints
 - `secrets/*.txt`: Secrets mounted into containers
-- `data/`: Persistent storage on the host (bind-backed named volumes)
+- `/home/qmennen/data/`: Persistent storage on the host (bind-backed named volumes)
 - `Makefile`: Common build/run targets
 
 **Configuration**
@@ -29,6 +29,9 @@ Contributing to this project has been made as easy as possible.
    - `db_root_password.txt`
    - `wp_password.txt`
    - `wp_admin_password.txt`
+3. Make sure data folders exist
+	- ${DATA_DIR}/mariadb_data
+	- ${DATA_DIR}/wordpress_data
 
 ### 2. Building and Running
 
